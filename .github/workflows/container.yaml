@@ -1,0 +1,33 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+      
+    steps:
+          - name: 'Checkout Code'
+            uses: actions/checkout@main
+
+          - name: 'Login to GitHub Container Registry'
+            uses: docker/login-action@v3
+            with:
+              registry: ghcr.io
+              username: ${{github.actor}}
+              password: ${{secrets.GITHUB_TOKEN}}
+
+          - name: 'Build and Push Image'
+            run: |
+              docker build --tag ghcr.io/${{github.actor}}/jellyplist:latest .
+              docker push ghcr.io/${{github.actor}}/jellyplist:latest
+
